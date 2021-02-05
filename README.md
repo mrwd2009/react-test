@@ -71,3 +71,6 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 ### Setup eslint step
 https://juejin.cn/post/6925378374466551821?utm_source=gold_browser_extension
+
+### Setup react debug env
+https://segmentfault.com/a/1190000020239791

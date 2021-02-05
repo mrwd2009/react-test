@@ -6769,6 +6769,13 @@ last-call-webpack-plugin@^3.0.0:
     lodash "^4.17.5"
     webpack-sources "^1.1.0"
 
+less-loader@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/less-loader/-/less-loader-8.0.0.tgz#cd7f10e3c13ca8f71244a11ee396405ae3ce9c82"
+  integrity sha512-tnDs0ZdwPZgNOg0NGJ0sAD2KViG9TvOMDVibT33fH1bpLkT4xMo5Ue2FsbjFsVsUKtuRTlU0tYp2/lRizrycLg==
+  dependencies:
+    klona "^2.0.4"
+
 leven@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/leven/-/leven-3.1.0.tgz#77891de834064cccba82ae7842bb6b14a13ed7f2"

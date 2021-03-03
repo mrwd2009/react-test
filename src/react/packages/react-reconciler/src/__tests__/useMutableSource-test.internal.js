@@ -529,7 +529,7 @@ describe('useMutableSource', () => {
 
       // Changing values should schedule an update with React.
       // Start working on this update but don't finish it.
-      Scheduler.unstable_runWithPriority(Scheduler.unstable_LowPriority, () => {
+      ReactNoop.idleUpdates(() => {
         source.value = 'two';
         expect(Scheduler).toFlushAndYieldThrough(['a:two']);
       });
@@ -538,29 +538,26 @@ describe('useMutableSource', () => {
 
       // Force a higher priority render with a new config.
       // This should signal that the snapshot is not safe and trigger a full re-render.
-      Scheduler.unstable_runWithPriority(
-        Scheduler.unstable_UserBlockingPriority,
-        () => {
-          ReactNoop.render(
-            <>
-              <Component
-                label="a"
-                getSnapshot={newGetSnapshot}
-                mutableSource={mutableSource}
-                subscribe={defaultSubscribe}
-              />
-              <Component
-                label="b"
-                getSnapshot={newGetSnapshot}
-                mutableSource={mutableSource}
-                subscribe={defaultSubscribe}
-              />
-            </>,
-            () => Scheduler.unstable_yieldValue('Sync effect'),
-          );
-        },
-      );
-      expect(Scheduler).toFlushAndYieldThrough([
+      ReactNoop.flushSync(() => {
+        ReactNoop.render(
+          <>
+            <Component
+              label="a"
+              getSnapshot={newGetSnapshot}
+              mutableSource={mutableSource}
+              subscribe={defaultSubscribe}
+            />
+            <Component
+              label="b"
+              getSnapshot={newGetSnapshot}
+              mutableSource={mutableSource}
+              subscribe={defaultSubscribe}
+            />
+          </>,
+          () => Scheduler.unstable_yieldValue('Sync effect'),
+        );
+      });
+      expect(Scheduler).toHaveYielded([
         'a:new:two',
         'b:new:two',
         'Sync effect',
@@ -596,7 +593,7 @@ describe('useMutableSource', () => {
 
       // Changing values should schedule an update with React.
       // Start working on this update but don't finish it.
-      Scheduler.unstable_runWithPriority(Scheduler.unstable_LowPriority, () => {
+      ReactNoop.idleUpdates(() => {
         source.value = 'two';
         expect(Scheduler).toFlushAndYieldThrough(['a:two']);
       });
@@ -793,19 +790,14 @@ describe('useMutableSource', () => {
       ReactNoop.flushPassiveEffects();
 
       // Change the source (and schedule an update).
-      Scheduler.unstable_runWithPriority(Scheduler.unstable_LowPriority, () => {
-        source.value = 'two';
-      });
+      source.value = 'two';
 
       // Schedule a higher priority update that changes getSnapshot.
-      Scheduler.unstable_runWithPriority(
-        Scheduler.unstable_UserBlockingPriority,
-        () => {
-          updateGetSnapshot(() => newGetSnapshot);
-        },
-      );
+      ReactNoop.flushSync(() => {
+        updateGetSnapshot(() => newGetSnapshot);
+      });
 
-      expect(Scheduler).toFlushAndYield(['only:new:two']);
+      expect(Scheduler).toHaveYielded(['only:new:two']);
     });
   });
 
@@ -1802,7 +1794,7 @@ describe('useMutableSource', () => {
       });
 
       // @gate experimental
-      it('should not misidentify mutations after render as side effects', () => {
+      it('should not misidentify mutations after render as side effects', async () => {
         const source = createSource('initial');
         const mutableSource = createMutableSource(
           source,
@@ -1819,15 +1811,16 @@ describe('useMutableSource', () => {
           return null;
         }
 
-        act(() => {
+        await act(async () => {
           ReactNoop.renderLegacySyncRoot(
             <React.StrictMode>
               <MutateDuringRead />
             </React.StrictMode>,
           );
-          expect(Scheduler).toFlushAndYieldThrough([
-            'MutateDuringRead:initial',
-          ]);
+        });
+        expect(Scheduler).toHaveYielded(['MutateDuringRead:initial']);
+
+        await act(async () => {
           source.value = 'updated';
         });
         expect(Scheduler).toHaveYielded(['MutateDuringRead:updated']);

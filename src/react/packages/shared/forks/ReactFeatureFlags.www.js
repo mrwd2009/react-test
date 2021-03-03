@@ -27,12 +27,14 @@ export const {
   decoupleUpdatePriorityFromScheduler,
   enableDebugTracing,
   skipUnmountedBoundaries,
-  enableDoubleInvokingEffects,
+  enableStrictEffects,
+  createRootStrictEffectsByDefault,
   enableUseRefAccessWarning,
   disableNativeComponentFrames,
   disableSchedulerTimeoutInWorkLoop,
-  enableTransitionEntanglement,
   enableDiscreteEventMicroTasks,
+  enableSyncMicroTasks,
+  enableNativeEventPriorityInference,
 } = dynamicFeatureFlags;
 
 // On WWW, __EXPERIMENTAL__ is used for a new modern build.
@@ -70,8 +72,6 @@ export const disableJavaScriptURLs = true;
 export const disableModulePatternComponents = true;
 
 export const enableCreateEventHandleAPI = true;
-
-export const enableFundamentalAPI = false;
 
 export const enableScopeAPI = true;
 

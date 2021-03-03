@@ -333,6 +333,7 @@ module.exports = function (webpackEnv) {
         'legacy-events': path.resolve(__dirname, '../src/react/packages/legacy-events'),
         'shared': path.resolve(__dirname, '../src/react/packages/shared'),
         'react-reconciler': path.resolve(__dirname, '../src/react/packages/react-reconciler'),
+        'scheduler': path.resolve(__dirname, '../src/react/packages/scheduler'),
         // Support React Native Web
         // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
         'react-native': 'react-native-web',

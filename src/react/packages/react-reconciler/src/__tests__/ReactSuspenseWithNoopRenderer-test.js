@@ -589,7 +589,8 @@ describe('ReactSuspenseWithNoopRenderer', () => {
 
   // Note: This test was written to test a heuristic used in the expiration
   // times model. Might not make sense in the new model.
-  // @gate enableCache
+  // TODO: This test doesn't over what it was originally designed to test.
+  // Either rewrite or delete.
   it('tries each subsequent level after suspending', async () => {
     const root = ReactNoop.createRoot();
 
@@ -642,23 +643,7 @@ describe('ReactSuspenseWithNoopRenderer', () => {
       root.render(<App step={4} shouldSuspend={false} />);
     });
 
-    expect(Scheduler).toHaveYielded([
-      // The new reconciler batches everything together, so it finishes without
-      // suspending again.
-      'Sibling',
-
-      // NOTE: The final of the update got pushed into a lower priority range of
-      // lanes, leading to the extra intermediate render. This is because when
-      // we schedule the fourth update, we're already in the middle of rendering
-      // the three others. Since there are only three lanes in the default
-      // range, the fourth lane is shifted to slightly lower priority. This
-      // could easily change when we tweak our batching heuristics. Ideally,
-      // they'd all have default priority and render in a single batch.
-      'Suspend! [Step 3]',
-      'Sibling',
-
-      'Step 4',
-    ]);
+    expect(Scheduler).toHaveYielded(['Sibling', 'Step 4']);
   });
 
   // @gate enableCache
@@ -1103,9 +1088,11 @@ describe('ReactSuspenseWithNoopRenderer', () => {
       expect(Scheduler).toHaveYielded(['Suspend! [Result]', 'Loading...']);
       expect(ReactNoop.getChildren()).toEqual([span('Loading...')]);
 
-      await resolveText('Result');
+      await ReactNoop.act(async () => {
+        resolveText('Result');
+      });
 
-      expect(Scheduler).toFlushExpired(['Result']);
+      expect(Scheduler).toHaveYielded(['Result']);
       expect(ReactNoop.getChildren()).toEqual([span('Result')]);
     });
 
@@ -1171,8 +1158,10 @@ describe('ReactSuspenseWithNoopRenderer', () => {
         </>,
       );
 
-      await resolveText('Step: 2');
-      expect(Scheduler).toFlushExpired(['Step: 2']);
+      await ReactNoop.act(async () => {
+        resolveText('Step: 2');
+      });
+      expect(Scheduler).toHaveYielded(['Step: 2']);
       expect(ReactNoop).toMatchRenderedOutput(
         <>
           <span prop="Step: 2" />
@@ -1242,9 +1231,11 @@ describe('ReactSuspenseWithNoopRenderer', () => {
         </>,
       );
 
-      await resolveText('B');
+      await ReactNoop.act(async () => {
+        resolveText('B');
+      });
 
-      expect(Scheduler).toFlushExpired(['B']);
+      expect(Scheduler).toHaveYielded(['B']);
       expect(ReactNoop).toMatchRenderedOutput(
         <>
           <span prop="A" />
@@ -1286,9 +1277,11 @@ describe('ReactSuspenseWithNoopRenderer', () => {
       ]);
       expect(ReactNoop.getChildren()).toEqual([span('Loading...')]);
 
-      await resolveText('Hi');
+      await ReactNoop.act(async () => {
+        resolveText('Hi');
+      });
 
-      expect(Scheduler).toFlushExpired([
+      expect(Scheduler).toHaveYielded([
         'constructor',
         'Hi',
         'componentDidMount',
@@ -1331,8 +1324,10 @@ describe('ReactSuspenseWithNoopRenderer', () => {
         'Loading...',
       ]);
       expect(ReactNoop.getChildren()).toEqual([span('Loading...')]);
-      await resolveText('Hi');
-      expect(Scheduler).toFlushExpired(['Hi']);
+      await ReactNoop.act(async () => {
+        resolveText('Hi');
+      });
+      expect(Scheduler).toHaveYielded(['Hi']);
       expect(ReactNoop.getChildren()).toEqual([span('Hi')]);
     });
 
@@ -1375,8 +1370,10 @@ describe('ReactSuspenseWithNoopRenderer', () => {
           </>,
         ]);
 
-        await resolveText('Hi');
-        expect(Scheduler).toFlushExpired(['Hi']);
+        await ReactNoop.act(async () => {
+          resolveText('Hi');
+        });
+        expect(Scheduler).toHaveYielded(['Hi']);
       });
     } else {
       // @gate enableCache
@@ -1416,9 +1413,11 @@ describe('ReactSuspenseWithNoopRenderer', () => {
           'Child is hidden: true',
         ]);
 
-        await resolveText('Hi');
+        await ReactNoop.act(async () => {
+          resolveText('Hi');
+        });
 
-        expect(Scheduler).toFlushExpired(['Hi']);
+        expect(Scheduler).toHaveYielded(['Hi']);
       });
     }
 
@@ -1662,9 +1661,11 @@ describe('ReactSuspenseWithNoopRenderer', () => {
       </>,
     );
 
-    await resolveText('B');
+    await ReactNoop.act(async () => {
+      resolveText('B');
+    });
 
-    expect(Scheduler).toFlushAndYield([
+    expect(Scheduler).toHaveYielded([
       'B',
       'Destroy Layout Effect [Loading...]',
       'Layout Effect [B]',
@@ -1696,9 +1697,11 @@ describe('ReactSuspenseWithNoopRenderer', () => {
       'Effect [Loading...]',
     ]);
 
-    await resolveText('B2');
+    await ReactNoop.act(async () => {
+      resolveText('B2');
+    });
 
-    expect(Scheduler).toFlushAndYield([
+    expect(Scheduler).toHaveYielded([
       'B2',
       'Destroy Layout Effect [Loading...]',
       'Destroy Layout Effect [B]',
@@ -2245,9 +2248,7 @@ describe('ReactSuspenseWithNoopRenderer', () => {
     expect(ReactNoop.getChildren()).toEqual([]);
 
     // Schedule an update at idle pri.
-    Scheduler.unstable_runWithPriority(Scheduler.unstable_IdlePriority, () =>
-      ReactNoop.render(<Foo renderContent={2} />),
-    );
+    ReactNoop.idleUpdates(() => ReactNoop.render(<Foo renderContent={2} />));
     // We won't even work on Idle priority.
     expect(Scheduler).toFlushAndYield([]);
 
@@ -2800,10 +2801,6 @@ describe('ReactSuspenseWithNoopRenderer', () => {
     expect(Scheduler).toHaveYielded([
       // First setState
       'Foo',
-      // Second setState. This update was scheduled while we were in the
-      // middle of rendering the previous update, so it was pushed to a separate
-      // batch to avoid invalidating the work-in-progress tree.
-      'Foo',
     ]);
     expect(root).toMatchRenderedOutput(<span prop="Foo" />);
   });
@@ -3008,12 +3005,9 @@ describe('ReactSuspenseWithNoopRenderer', () => {
         setText('B');
 
         await resolveText('C');
-        Scheduler.unstable_runWithPriority(
-          Scheduler.unstable_IdlePriority,
-          () => {
-            setText('C');
-          },
-        );
+        ReactNoop.idleUpdates(() => {
+          setText('C');
+        });
 
         expect(Scheduler).toFlushAndYield([
           // First we attempt the high pri update. It suspends.
@@ -3272,12 +3266,9 @@ describe('ReactSuspenseWithNoopRenderer', () => {
 
         // And another update at lower priority. This will unblock.
         await resolveText('E');
-        Scheduler.unstable_runWithPriority(
-          Scheduler.unstable_IdlePriority,
-          () => {
-            setText('E');
-          },
-        );
+        ReactNoop.idleUpdates(() => {
+          setText('E');
+        });
       });
       // Even though the fragment fiber is not part of the return path, we should
       // be able to finish rendering.
@@ -3828,12 +3819,9 @@ describe('ReactSuspenseWithNoopRenderer', () => {
 
     await ReactNoop.act(async () => {
       setText('B');
-      Scheduler.unstable_runWithPriority(
-        Scheduler.unstable_IdlePriority,
-        () => {
-          setText('B');
-        },
-      );
+      ReactNoop.idleUpdates(() => {
+        setText('B');
+      });
       // Suspend the first update. The second update doesn't run because it has
       // Idle priority.
       expect(Scheduler).toFlushAndYield(['Suspend! [B]', 'Loading...']);

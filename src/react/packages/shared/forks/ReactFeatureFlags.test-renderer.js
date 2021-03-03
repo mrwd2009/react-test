@@ -27,7 +27,6 @@ export const enableCache = __EXPERIMENTAL__;
 export const disableJavaScriptURLs = false;
 export const disableInputAttributeSyncing = false;
 export const enableSchedulerDebugging = false;
-export const enableFundamentalAPI = false;
 export const enableScopeAPI = false;
 export const enableCreateEventHandleAPI = false;
 export const warnAboutUnmockedScheduler = false;
@@ -52,13 +51,15 @@ export const deferRenderPhaseUpdateToNextBatch = true;
 export const decoupleUpdatePriorityFromScheduler = false;
 export const enableDiscreteEventFlushingChange = false;
 
-export const enableDoubleInvokingEffects = false;
+export const enableStrictEffects = false;
+export const createRootStrictEffectsByDefault = false;
 export const enableUseRefAccessWarning = false;
 
 export const enableRecursiveCommitTraversal = false;
 export const disableSchedulerTimeoutInWorkLoop = false;
-export const enableTransitionEntanglement = false;
 export const enableDiscreteEventMicroTasks = false;
+export const enableSyncMicroTasks = false;
+export const enableNativeEventPriorityInference = false;
 
 // Flow magic to verify the exports of this file match the original version.
 // eslint-disable-next-line no-unused-vars

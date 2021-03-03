@@ -50,10 +50,12 @@ export const enableTrustedTypesIntegration = false;
 export const disableSchedulerTimeoutBasedOnReactExpirationTime = false;
 export const disableNativeComponentFrames = false;
 
-export const enableDoubleInvokingEffects = false;
+export const createRootStrictEffectsByDefault = false;
+export const enableStrictEffects = false;
 export const enableUseRefAccessWarning = __VARIANT__;
 
 export const enableProfilerNestedUpdateScheduledHook = __VARIANT__;
 export const disableSchedulerTimeoutInWorkLoop = __VARIANT__;
-export const enableTransitionEntanglement = __VARIANT__;
 export const enableDiscreteEventMicroTasks = __VARIANT__;
+export const enableSyncMicroTasks = __VARIANT__;
+export const enableNativeEventPriorityInference = __VARIANT__;

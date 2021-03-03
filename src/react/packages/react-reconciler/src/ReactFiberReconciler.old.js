@@ -17,7 +17,6 @@ import type {
   PublicInstance,
 } from './ReactFiberHostConfig';
 import type {RendererInspectionConfig} from './ReactFiberHostConfig';
-import {FundamentalComponent} from './ReactWorkTags';
 import type {ReactNodeList} from 'shared/ReactTypes';
 import type {Lane, LanePriority} from './ReactFiberLane.old';
 import type {SuspenseState} from './ReactFiberSuspenseComponent.old';
@@ -76,7 +75,7 @@ import {
   resetCurrentFiber as resetCurrentDebugFiberInDEV,
   setCurrentFiber as setCurrentDebugFiberInDEV,
 } from './ReactCurrentFiber';
-import {StrictMode} from './ReactTypeOfMode';
+import {StrictLegacyMode} from './ReactTypeOfMode';
 import {
   SyncLane,
   InputDiscreteHydrationLane,
@@ -95,11 +94,21 @@ import {
 } from './ReactFiberHotReloading.old';
 import {markRenderScheduled} from './SchedulingProfiler';
 
-export {registerMutableSourceForHydration} from './ReactMutableSource.new';
+// Ideally host configs would import these constants from the reconciler
+// entry point, but we can't do this because of a circular dependency.
+// They are used by third-party renderers so they need to stay up to date.
+export {
+  InputDiscreteLanePriority as DiscreteEventPriority,
+  InputContinuousLanePriority as ContinuousEventPriority,
+  DefaultLanePriority as DefaultEventPriority,
+  IdleLanePriority as IdleEventPriority,
+} from './ReactFiberLane.old';
+
+export {registerMutableSourceForHydration} from './ReactMutableSource.old';
 export {createPortal} from './ReactPortal';
 export {
   createComponentSelector,
-  createHasPsuedoClassSelector,
+  createHasPseudoClassSelector,
   createRoleSelector,
   createTestNameSelector,
   createTextSelector,
@@ -195,7 +204,7 @@ function findHostInstanceWithWarning(
     if (hostFiber === null) {
       return null;
     }
-    if (hostFiber.mode & StrictMode) {
+    if (hostFiber.mode & StrictLegacyMode) {
       const componentName = getComponentName(fiber.type) || 'Component';
       if (!didWarnAboutFindNodeInStrictMode[componentName]) {
         didWarnAboutFindNodeInStrictMode[componentName] = true;
@@ -203,7 +212,7 @@ function findHostInstanceWithWarning(
         const previousFiber = ReactCurrentFiberCurrent;
         try {
           setCurrentDebugFiberInDEV(hostFiber);
-          if (fiber.mode & StrictMode) {
+          if (fiber.mode & StrictLegacyMode) {
             console.error(
               '%s is deprecated in StrictMode. ' +
                 '%s was passed an instance of %s which is inside StrictMode. ' +
@@ -247,8 +256,15 @@ export function createContainer(
   tag: RootTag,
   hydrate: boolean,
   hydrationCallbacks: null | SuspenseHydrationCallbacks,
+  strictModeLevelOverride: null | number,
 ): OpaqueRoot {
-  return createFiberRoot(containerInfo, tag, hydrate, hydrationCallbacks);
+  return createFiberRoot(
+    containerInfo,
+    tag,
+    hydrate,
+    hydrationCallbacks,
+    strictModeLevelOverride,
+  );
 }
 
 export function updateContainer(
@@ -397,7 +413,7 @@ function markRetryLaneIfNotHydrated(fiber: Fiber, retryLane: Lane) {
   }
 }
 
-export function attemptUserBlockingHydration(fiber: Fiber): void {
+export function attemptDiscreteHydration(fiber: Fiber): void {
   if (fiber.tag !== SuspenseComponent) {
     // We ignore HostRoots here because we can't increase
     // their priority and they should not suspend on I/O,
@@ -459,9 +475,6 @@ export function findHostInstanceWithNoPortals(
   const hostFiber = findCurrentHostFiberWithNoPortals(fiber);
   if (hostFiber === null) {
     return null;
-  }
-  if (hostFiber.tag === FundamentalComponent) {
-    return hostFiber.stateNode.instance;
   }
   return hostFiber.stateNode;
 }

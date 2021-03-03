@@ -52,7 +52,6 @@ import {
   SimpleMemoComponent,
   LazyComponent,
   IncompleteClassComponent,
-  FundamentalComponent,
   ScopeComponent,
   OffscreenComponent,
   LegacyHiddenComponent,
@@ -79,7 +78,6 @@ import {
   enableProfilerTimer,
   enableSchedulerTracing,
   enableSuspenseServerRenderer,
-  enableFundamentalAPI,
   warnAboutDefaultPropsOnFunctionComponents,
   enableScopeAPI,
   enableCache,
@@ -127,7 +125,7 @@ import {
   ConcurrentMode,
   NoMode,
   ProfileMode,
-  StrictMode,
+  StrictLegacyMode,
   BlockingMode,
 } from './ReactTypeOfMode';
 import {
@@ -359,7 +357,7 @@ function updateForwardRef(
     );
     if (
       debugRenderPhaseSideEffectsForStrictMode &&
-      workInProgress.mode & StrictMode
+      workInProgress.mode & StrictLegacyMode
     ) {
       disableLogs();
       try {
@@ -891,7 +889,7 @@ function updateFunctionComponent(
     );
     if (
       debugRenderPhaseSideEffectsForStrictMode &&
-      workInProgress.mode & StrictMode
+      workInProgress.mode & StrictLegacyMode
     ) {
       disableLogs();
       try {
@@ -1070,7 +1068,7 @@ function finishClassComponent(
       nextChildren = instance.render();
       if (
         debugRenderPhaseSideEffectsForStrictMode &&
-        workInProgress.mode & StrictMode
+        workInProgress.mode & StrictLegacyMode
       ) {
         disableLogs();
         try {
@@ -1480,7 +1478,7 @@ function mountIndeterminateComponent(
       }
     }
 
-    if (workInProgress.mode & StrictMode) {
+    if (workInProgress.mode & StrictLegacyMode) {
       ReactStrictModeWarnings.recordLegacyContextWarning(workInProgress, null);
     }
 
@@ -1617,7 +1615,7 @@ function mountIndeterminateComponent(
 
       if (
         debugRenderPhaseSideEffectsForStrictMode &&
-        workInProgress.mode & StrictMode
+        workInProgress.mode & StrictLegacyMode
       ) {
         disableLogs();
         try {
@@ -3063,18 +3061,6 @@ function updateContextConsumer(
   return workInProgress.child;
 }
 
-function updateFundamentalComponent(current, workInProgress, renderLanes) {
-  const fundamentalImpl = workInProgress.type.impl;
-  if (fundamentalImpl.reconcileChildren === false) {
-    return null;
-  }
-  const nextProps = workInProgress.pendingProps;
-  const nextChildren = nextProps.children;
-
-  reconcileChildren(current, workInProgress, nextChildren, renderLanes);
-  return workInProgress.child;
-}
-
 function updateScopeComponent(current, workInProgress, renderLanes) {
   const nextProps = workInProgress.pendingProps;
   const nextChildren = nextProps.children;
@@ -3570,12 +3556,6 @@ function beginWork(
     }
     case SuspenseListComponent: {
       return updateSuspenseListComponent(current, workInProgress, renderLanes);
-    }
-    case FundamentalComponent: {
-      if (enableFundamentalAPI) {
-        return updateFundamentalComponent(current, workInProgress, renderLanes);
-      }
-      break;
     }
     case ScopeComponent: {
       if (enableScopeAPI) {

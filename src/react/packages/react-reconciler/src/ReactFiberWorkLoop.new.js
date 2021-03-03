@@ -32,8 +32,9 @@ import {
   enableDebugTracing,
   enableSchedulingProfiler,
   disableSchedulerTimeoutInWorkLoop,
-  enableDoubleInvokingEffects,
+  enableStrictEffects,
   skipUnmountedBoundaries,
+  enableNativeEventPriorityInference,
 } from 'shared/ReactFeatureFlags';
 import ReactSharedInternals from 'shared/ReactSharedInternals';
 import invariant from 'shared/invariant';
@@ -92,7 +93,9 @@ import {
   warnsIfNotActing,
   afterActiveInstanceBlur,
   clearContainer,
-  queueMicrotask,
+  getCurrentEventPriority,
+  supportsMicrotasks,
+  scheduleMicrotask,
 } from './ReactFiberHostConfig';
 
 import {
@@ -101,7 +104,7 @@ import {
 } from './ReactFiber.new';
 import {
   NoMode,
-  StrictMode,
+  StrictLegacyMode,
   ProfileMode,
   BlockingMode,
   ConcurrentMode,
@@ -145,8 +148,8 @@ import {
   SyncBatchedLane,
   NoTimestamp,
   findUpdateLane,
-  findTransitionLane,
-  findRetryLane,
+  claimNextTransitionLane,
+  claimNextRetryLane,
   includesSomeLane,
   isSubsetOfLanes,
   mergeLanes,
@@ -217,7 +220,6 @@ import {
   syncNestedUpdateFlag,
 } from './ReactProfilerTimer.new';
 
-import {enableDiscreteEventMicroTasks} from 'shared/ReactFeatureFlags';
 // DEV stuff
 import getComponentName from 'shared/getComponentName';
 import ReactStrictModeWarnings from './ReactStrictModeWarnings.new';
@@ -302,8 +304,6 @@ let workInProgressRootUpdatedLanes: Lanes = NoLanes;
 // Lanes that were pinged (in an interleaved event) during this render.
 let workInProgressRootPingedLanes: Lanes = NoLanes;
 
-let mostRecentlyUpdatedRoot: FiberRoot | null = null;
-
 // The most recent time we committed a fallback. This lets us ensure a train
 // model where we don't commit new loading states in too quick succession.
 let globalMostRecentFallbackTime: number = 0;
@@ -360,7 +360,7 @@ let spawnedWorkDuringRender: null | Array<Lane | Lanes> = null;
 // between the first and second call.
 let currentEventTime: number = NoTimestamp;
 let currentEventWipLanes: Lanes = NoLanes;
-let currentEventPendingLanes: Lanes = NoLanes;
+let currentEventTransitionLane: Lanes = NoLanes;
 
 // Dev only flag that tracks if passive effects are currently being flushed.
 // We warn about state updates for unmounted components differently in this case.
@@ -428,20 +428,17 @@ export function requestUpdateLane(fiber: Fiber): Lane {
   // event. Then reset the cached values once we can be sure the event is over.
   // Our heuristic for that is whenever we enter a concurrent work loop.
   //
-  // We'll do the same for `currentEventPendingLanes` below.
+  // We'll do the same for `currentEventTransitionLane` below.
   if (currentEventWipLanes === NoLanes) {
     currentEventWipLanes = workInProgressRootIncludedLanes;
   }
 
   const isTransition = requestCurrentTransition() !== NoTransition;
   if (isTransition) {
-    if (currentEventPendingLanes !== NoLanes) {
-      currentEventPendingLanes =
-        mostRecentlyUpdatedRoot !== null
-          ? mostRecentlyUpdatedRoot.pendingLanes
-          : NoLanes;
+    if (currentEventTransitionLane === NoLane) {
+      currentEventTransitionLane = claimNextTransitionLane();
     }
-    return findTransitionLane(currentEventWipLanes, currentEventPendingLanes);
+    return currentEventTransitionLane;
   }
 
   // TODO: Remove this dependency on the Scheduler priority.
@@ -457,19 +454,23 @@ export function requestUpdateLane(fiber: Fiber): Lane {
     (executionContext & DiscreteEventContext) !== NoContext &&
     schedulerPriority === UserBlockingSchedulerPriority
   ) {
-    lane = findUpdateLane(InputDiscreteLanePriority, currentEventWipLanes);
+    lane = findUpdateLane(InputDiscreteLanePriority);
   } else if (
     decoupleUpdatePriorityFromScheduler &&
     getCurrentUpdateLanePriority() !== NoLanePriority
   ) {
     const currentLanePriority = getCurrentUpdateLanePriority();
-    lane = findUpdateLane(currentLanePriority, currentEventWipLanes);
+    lane = findUpdateLane(currentLanePriority);
   } else {
-    const schedulerLanePriority = schedulerPriorityToLanePriority(
-      schedulerPriority,
-    );
-
-    lane = findUpdateLane(schedulerLanePriority, currentEventWipLanes);
+    if (enableNativeEventPriorityInference) {
+      const eventLanePriority = getCurrentEventPriority();
+      lane = findUpdateLane(eventLanePriority);
+    } else {
+      const schedulerLanePriority = schedulerPriorityToLanePriority(
+        schedulerPriority,
+      );
+      lane = findUpdateLane(schedulerLanePriority);
+    }
   }
 
   return lane;
@@ -494,7 +495,8 @@ function requestRetryLane(fiber: Fiber) {
   if (currentEventWipLanes === NoLanes) {
     currentEventWipLanes = workInProgressRootIncludedLanes;
   }
-  return findRetryLane(currentEventWipLanes);
+
+  return claimNextRetryLane();
 }
 
 export function scheduleUpdateOnFiber(
@@ -618,13 +620,6 @@ export function scheduleUpdateOnFiber(
     schedulePendingInteractions(root, lane);
   }
 
-  // We use this when assigning a lane for a transition inside
-  // `requestUpdateLane`. We assume it's the same as the root being updated,
-  // since in the common case of a single root app it probably is. If it's not
-  // the same root, then it's not a huge deal, we just might batch more stuff
-  // together more than necessary.
-  mostRecentlyUpdatedRoot = root;
-
   return root;
 }
 
@@ -650,7 +645,7 @@ function markUpdateLaneFromFiberToRoot(
       warnAboutUpdateOnNotYetMountedFiberInDEV(sourceFiber);
     }
   }
-  // Walk the parent path to the root and update the child expiration time.
+  // Walk the parent path to the root and update the child lanes.
   let node = sourceFiber;
   let parent = sourceFiber.return;
   while (parent !== null) {
@@ -731,7 +726,8 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
       // TODO: Temporary until we confirm this warning is not fired.
       if (
         existingCallbackNode == null &&
-        existingCallbackPriority !== InputDiscreteLanePriority
+        existingCallbackPriority !== InputDiscreteLanePriority &&
+        existingCallbackPriority !== SyncLanePriority
       ) {
         console.error(
           'Expected scheduled callback to exist. This error is likely caused by a bug in React. Please file an issue.',
@@ -752,21 +748,18 @@ function ensureRootIsScheduled(root: FiberRoot, currentTime: number) {
   if (newCallbackPriority === SyncLanePriority) {
     // Special case: Sync React callbacks are scheduled on a special
     // internal queue
-
-    // TODO: After enableDiscreteEventMicroTasks lands, we can remove the fake node.
-    newCallbackNode = scheduleSyncCallback(
-      performSyncWorkOnRoot.bind(null, root),
-    );
+    scheduleSyncCallback(performSyncWorkOnRoot.bind(null, root));
+    newCallbackNode = null;
   } else if (newCallbackPriority === SyncBatchedLanePriority) {
     newCallbackNode = scheduleCallback(
       ImmediateSchedulerPriority,
       performSyncWorkOnRoot.bind(null, root),
     );
   } else if (
-    enableDiscreteEventMicroTasks &&
+    supportsMicrotasks &&
     newCallbackPriority === InputDiscreteLanePriority
   ) {
-    queueMicrotask(performSyncWorkOnRoot.bind(null, root));
+    scheduleMicrotask(performSyncWorkOnRoot.bind(null, root));
     newCallbackNode = null;
   } else {
     const schedulerPriorityLevel = lanePriorityToSchedulerPriority(
@@ -793,7 +786,7 @@ function performConcurrentWorkOnRoot(root, didTimeout) {
   // event time. The next update will compute a new event time.
   currentEventTime = NoTimestamp;
   currentEventWipLanes = NoLanes;
-  currentEventPendingLanes = NoLanes;
+  currentEventTransitionLane = NoLanes;
 
   invariant(
     (executionContext & (RenderContext | CommitContext)) === NoContext,
@@ -841,21 +834,7 @@ function performConcurrentWorkOnRoot(root, didTimeout) {
   }
 
   let exitStatus = renderRootConcurrent(root, lanes);
-
-  if (
-    includesSomeLane(
-      workInProgressRootIncludedLanes,
-      workInProgressRootUpdatedLanes,
-    )
-  ) {
-    // The render included lanes that were updated during the render phase.
-    // For example, when unhiding a hidden tree, we include all the lanes
-    // that were previously skipped when the tree was hidden. That set of
-    // lanes is a superset of the lanes we started rendering with.
-    //
-    // So we'll throw out the current work and restart.
-    prepareFreshStack(root, NoLanes);
-  } else if (exitStatus !== RootIncomplete) {
+  if (exitStatus !== RootIncomplete) {
     if (exitStatus === RootErrored) {
       executionContext |= RetryAfterError;
 
@@ -1047,25 +1026,22 @@ function performSyncWorkOnRoot(root) {
     // rendering it before rendering the rest of the expired work.
     lanes = workInProgressRootRenderLanes;
     exitStatus = renderRootSync(root, lanes);
-    if (
-      includesSomeLane(
-        workInProgressRootIncludedLanes,
-        workInProgressRootUpdatedLanes,
-      )
-    ) {
-      // The render included lanes that were updated during the render phase.
-      // For example, when unhiding a hidden tree, we include all the lanes
-      // that were previously skipped when the tree was hidden. That set of
-      // lanes is a superset of the lanes we started rendering with.
-      //
-      // Note that this only happens when part of the tree is rendered
-      // concurrently. If the whole tree is rendered synchronously, then there
-      // are no interleaved events.
-      lanes = getNextLanes(root, lanes);
-      exitStatus = renderRootSync(root, lanes);
-    }
   } else {
     lanes = getNextLanes(root, NoLanes);
+    // Because we don't cancel synchronous tasks, sometimes more than one
+    // synchronous task ends up being scheduled. This is an artifact of the fact
+    // that we have two different lanes that schedule sync tasks: discrete and
+    // sync. If we had only one, then (I believe) this extra check wouldn't be
+    // necessary, because there's nothing higher priority than sync that would
+    // cause us to cancel it.
+    // TODO: Merge InputDiscreteLanePriority with SyncLanePriority, then delete
+    // this bailout.
+    if (supportsMicrotasks) {
+      const nextLanesPriority = returnNextLanesPriority();
+      if (nextLanesPriority < InputDiscreteLanePriority) {
+        return null;
+      }
+    }
     exitStatus = renderRootSync(root, lanes);
   }
 
@@ -2094,7 +2070,7 @@ function commitRootImpl(root, renderPriorityLevel) {
     legacyErrorBoundariesThatAlreadyFailed = null;
   }
 
-  if (__DEV__ && enableDoubleInvokingEffects) {
+  if (__DEV__ && enableStrictEffects) {
     if (!rootDidHavePassiveEffects) {
       commitDoubleInvokeEffectsInDEV(root.current, false);
     }
@@ -2281,7 +2257,7 @@ function flushPassiveEffectsImpl() {
     markPassiveEffectsStopped();
   }
 
-  if (__DEV__ && enableDoubleInvokingEffects) {
+  if (__DEV__ && enableStrictEffects) {
     commitDoubleInvokeEffectsInDEV(root.current, true);
   }
 
@@ -2461,6 +2437,8 @@ function retryTimedOutBoundary(boundaryFiber: Fiber, retryLane: Lane) {
   // suspended it has resolved, which means at least part of the tree was
   // likely unblocked. Try rendering again, at a new expiration time.
   if (retryLane === NoLane) {
+    // TODO: Assign this to `suspenseState.retryLane`? to avoid
+    // unnecessary entanglement?
     retryLane = requestRetryLane(boundaryFiber);
   }
   // TODO: Special case idle priority?
@@ -2582,11 +2560,10 @@ function commitDoubleInvokeEffectsInDEV(
   fiber: Fiber,
   hasPassiveEffects: boolean,
 ) {
-  if (__DEV__ && enableDoubleInvokingEffects) {
-    // Never double-invoke effects for legacy roots.
-    if ((fiber.mode & (BlockingMode | ConcurrentMode)) === NoMode) {
-      return;
-    }
+  if (__DEV__ && enableStrictEffects) {
+    // TODO (StrictEffects) Should we set a marker on the root if it contains strict effects
+    // so we don't traverse unnecessarily? similar to subtreeFlags but just at the root level.
+    // Maybe not a big deal since this is DEV only behavior.
 
     setCurrentDebugFiberInDEV(fiber);
     invokeEffectsInDev(fiber, MountLayoutDev, invokeLayoutEffectUnmountInDEV);
@@ -2611,9 +2588,9 @@ function invokeEffectsInDev(
   fiberFlags: Flags,
   invokeEffectFn: (fiber: Fiber) => void,
 ): void {
-  if (__DEV__ && enableDoubleInvokingEffects) {
-    // We don't need to re-check for legacy roots here.
-    // This function will not be called within legacy roots.
+  if (__DEV__ && enableStrictEffects) {
+    // We don't need to re-check StrictEffectsMode here.
+    // This function is only called if that check has already passed.
 
     let current = firstChild;
     let subtreeRoot = null;
@@ -2956,7 +2933,7 @@ export function warnIfNotCurrentlyActingEffectsInDEV(fiber: Fiber): void {
   if (__DEV__) {
     if (
       warnsIfNotActing === true &&
-      (fiber.mode & StrictMode) !== NoMode &&
+      (fiber.mode & StrictLegacyMode) !== NoMode &&
       IsSomeRendererActing.current === false &&
       IsThisRendererActing.current === false
     ) {

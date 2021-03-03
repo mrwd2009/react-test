@@ -27,6 +27,10 @@ import {
   LegacyRoot,
 } from 'react-reconciler/src/ReactRootTags';
 
+import {
+  enableNativeEventPriorityInference,
+  enableDiscreteEventMicroTasks,
+} from 'shared/ReactFeatureFlags';
 import ReactSharedInternals from 'shared/ReactSharedInternals';
 import enqueueTask from 'shared/enqueueTask';
 const {IsSomeRendererActing} = ReactSharedInternals;
@@ -371,7 +375,9 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
     scheduleTimeout: setTimeout,
     cancelTimeout: clearTimeout,
     noTimeout: -1,
-    queueMicrotask:
+
+    supportsMicrotasks: enableDiscreteEventMicroTasks,
+    scheduleMicrotask:
       typeof queueMicrotask === 'function'
         ? queueMicrotask
         : typeof Promise !== 'undefined'
@@ -391,62 +397,15 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
 
     resetAfterCommit(): void {},
 
+    getCurrentEventPriority() {
+      return currentEventPriority;
+    },
+
     now: Scheduler.unstable_now,
 
     isPrimaryRenderer: true,
     warnsIfNotActing: true,
     supportsHydration: false,
-
-    getFundamentalComponentInstance(fundamentalInstance): Instance {
-      const {impl, props, state} = fundamentalInstance;
-      return impl.getInstance(null, props, state);
-    },
-
-    mountFundamentalComponent(fundamentalInstance): void {
-      const {impl, instance, props, state} = fundamentalInstance;
-      const onMount = impl.onUpdate;
-      if (onMount !== undefined) {
-        onMount(null, instance, props, state);
-      }
-    },
-
-    shouldUpdateFundamentalComponent(fundamentalInstance): boolean {
-      const {impl, instance, prevProps, props, state} = fundamentalInstance;
-      const shouldUpdate = impl.shouldUpdate;
-      if (shouldUpdate !== undefined) {
-        return shouldUpdate(null, instance, prevProps, props, state);
-      }
-      return true;
-    },
-
-    updateFundamentalComponent(fundamentalInstance): void {
-      const {impl, instance, prevProps, props, state} = fundamentalInstance;
-      const onUpdate = impl.onUpdate;
-      if (onUpdate !== undefined) {
-        onUpdate(null, instance, prevProps, props, state);
-      }
-    },
-
-    unmountFundamentalComponent(fundamentalInstance): void {
-      const {impl, instance, props, state} = fundamentalInstance;
-      const onUnmount = impl.onUnmount;
-      if (onUnmount !== undefined) {
-        onUnmount(null, instance, props, state);
-      }
-    },
-
-    cloneFundamentalInstance(fundamentalInstance): Instance {
-      const instance = fundamentalInstance.instance;
-      return {
-        children: [],
-        text: instance.text,
-        type: instance.type,
-        prop: instance.prop,
-        id: instance.id,
-        context: instance.context,
-        hidden: instance.hidden,
-      };
-    },
 
     getInstanceFromNode() {
       throw new Error('Not yet implemented.');
@@ -634,6 +593,8 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
   const roots = new Map();
   const DEFAULT_ROOT_ID = '<default>';
 
+  let currentEventPriority = NoopRenderer.DefaultEventPriority;
+
   function childToJSX(child, text) {
     if (text !== null) {
       return text;
@@ -761,7 +722,7 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
       if (!root) {
         const container = {rootID: rootID, pendingChildren: [], children: []};
         rootContainers.set(rootID, container);
-        root = NoopRenderer.createContainer(container, tag, false, null);
+        root = NoopRenderer.createContainer(container, tag, false, null, null);
         roots.set(rootID, root);
       }
       return root.current.stateNode.containerInfo;
@@ -778,6 +739,7 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
         container,
         ConcurrentRoot,
         false,
+        null,
         null,
       );
       return {
@@ -805,6 +767,7 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
         BlockingRoot,
         false,
         null,
+        null,
       );
       return {
         _Scheduler: Scheduler,
@@ -830,6 +793,7 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
         container,
         LegacyRoot,
         false,
+        null,
         null,
       );
       return {
@@ -971,6 +935,23 @@ function createReactNoop(reconciler: Function, useMutation: boolean) {
     unbatchedUpdates: NoopRenderer.unbatchedUpdates,
 
     discreteUpdates: NoopRenderer.discreteUpdates,
+
+    idleUpdates<T>(fn: () => T): T {
+      if (enableNativeEventPriorityInference) {
+        const prevEventPriority = currentEventPriority;
+        currentEventPriority = NoopRenderer.IdleEventPriority;
+        try {
+          fn();
+        } finally {
+          currentEventPriority = prevEventPriority;
+        }
+      } else {
+        return Scheduler.unstable_runWithPriority(
+          Scheduler.unstable_IdlePriority,
+          fn,
+        );
+      }
+    },
 
     flushDiscreteUpdates: NoopRenderer.flushDiscreteUpdates,
 

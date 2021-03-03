@@ -29,14 +29,14 @@ import {
   enableCache,
   decoupleUpdatePriorityFromScheduler,
   enableUseRefAccessWarning,
-  enableDoubleInvokingEffects,
+  enableStrictEffects,
 } from 'shared/ReactFeatureFlags';
 
 import {
   NoMode,
   BlockingMode,
-  ConcurrentMode,
   DebugTracingMode,
+  StrictEffectsMode,
 } from './ReactTypeOfMode';
 import {
   NoLane,
@@ -471,6 +471,21 @@ export function renderWithHooks<Props, SecondArg>(
     currentHookNameInDev = null;
     hookTypesDev = null;
     hookTypesUpdateIndexDev = -1;
+
+    // Confirm that a static flag was not added or removed since the last
+    // render. If this fires, it suggests that we incorrectly reset the static
+    // flags in some other part of the codebase. This has happened before, for
+    // example, in the SuspenseList implementation.
+    if (
+      current !== null &&
+      (current.flags & PassiveStaticEffect) !==
+        (workInProgress.flags & PassiveStaticEffect)
+    ) {
+      console.error(
+        'Internal React error: Expected static flag was missing. Please ' +
+          'notify the React team.',
+      );
+    }
   }
 
   didScheduleRenderPhaseUpdate = false;
@@ -494,8 +509,8 @@ export function bailoutHooks(
   // complete phase (bubbleProperties).
   if (
     __DEV__ &&
-    enableDoubleInvokingEffects &&
-    (workInProgress.mode & (BlockingMode | ConcurrentMode)) !== NoMode
+    enableStrictEffects &&
+    (workInProgress.mode & StrictEffectsMode) !== NoMode
   ) {
     workInProgress.flags &= ~(
       MountPassiveDevEffect |
@@ -1408,8 +1423,8 @@ function mountEffect(
   }
   if (
     __DEV__ &&
-    enableDoubleInvokingEffects &&
-    (currentlyRenderingFiber.mode & (BlockingMode | ConcurrentMode)) !== NoMode
+    enableStrictEffects &&
+    (currentlyRenderingFiber.mode & StrictEffectsMode) !== NoMode
   ) {
     return mountEffectImpl(
       MountPassiveDevEffect | PassiveEffect | PassiveStaticEffect,
@@ -1446,8 +1461,8 @@ function mountLayoutEffect(
 ): void {
   if (
     __DEV__ &&
-    enableDoubleInvokingEffects &&
-    (currentlyRenderingFiber.mode & (BlockingMode | ConcurrentMode)) !== NoMode
+    enableStrictEffects &&
+    (currentlyRenderingFiber.mode & StrictEffectsMode) !== NoMode
   ) {
     return mountEffectImpl(
       MountLayoutDevEffect | UpdateEffect,
@@ -1518,8 +1533,8 @@ function mountImperativeHandle<T>(
 
   if (
     __DEV__ &&
-    enableDoubleInvokingEffects &&
-    (currentlyRenderingFiber.mode & (BlockingMode | ConcurrentMode)) !== NoMode
+    enableStrictEffects &&
+    (currentlyRenderingFiber.mode & StrictEffectsMode) !== NoMode
   ) {
     return mountEffectImpl(
       MountLayoutDevEffect | UpdateEffect,
@@ -1815,7 +1830,11 @@ function mountOpaqueIdentifier(): OpaqueIDType | void {
     const setId = mountState(id)[1];
 
     if ((currentlyRenderingFiber.mode & BlockingMode) === NoMode) {
-      if (__DEV__ && enableDoubleInvokingEffects) {
+      if (
+        __DEV__ &&
+        enableStrictEffects &&
+        (currentlyRenderingFiber.mode & StrictEffectsMode) === NoMode
+      ) {
         currentlyRenderingFiber.flags |= MountPassiveDevEffect | PassiveEffect;
       } else {
         currentlyRenderingFiber.flags |= PassiveEffect;
@@ -2029,10 +2048,11 @@ function dispatchAction<S, A>(
 
       // Entangle the new transition lane with the other transition lanes.
       const newQueueLanes = mergeLanes(queueLanes, lane);
-      if (newQueueLanes !== queueLanes) {
-        queue.lanes = newQueueLanes;
-        markRootEntangled(root, newQueueLanes);
-      }
+      queue.lanes = newQueueLanes;
+      // Even if queue.lanes already include lane, we don't know for certain if
+      // the lane finished since the last time we entangled it. So we need to
+      // entangle it again, just to be sure.
+      markRootEntangled(root, newQueueLanes);
     }
   }
 

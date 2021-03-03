@@ -16,6 +16,7 @@ import {__interactionsRef} from 'scheduler/tracing';
 import {
   enableSchedulerTracing,
   decoupleUpdatePriorityFromScheduler,
+  enableSyncMicroTasks,
 } from 'shared/ReactFeatureFlags';
 import invariant from 'shared/invariant';
 import {
@@ -23,6 +24,7 @@ import {
   getCurrentUpdateLanePriority,
   setCurrentUpdateLanePriority,
 } from './ReactFiberLane.old';
+import {scheduleMicrotask, supportsMicrotasks} from './ReactFiberHostConfig';
 
 const {
   unstable_runWithPriority: Scheduler_runWithPriority,
@@ -56,8 +58,6 @@ if (enableSchedulerTracing) {
 export type SchedulerCallback = (isSync: boolean) => SchedulerCallback | null;
 
 type SchedulerCallbackOptions = {timeout?: number, ...};
-
-const fakeCallbackNode = {};
 
 // Except for NoPriority, these correspond to Scheduler priorities. We use
 // ascending numbers so we can compare them like numbers. They start at 90 to
@@ -146,23 +146,28 @@ export function scheduleSyncCallback(callback: SchedulerCallback) {
   // the next tick, or earlier if something calls `flushSyncCallbackQueue`.
   if (syncQueue === null) {
     syncQueue = [callback];
-    // Flush the queue in the next tick, at the earliest.
-    immediateQueueCallbackNode = Scheduler_scheduleCallback(
-      Scheduler_ImmediatePriority,
-      flushSyncCallbackQueueImpl,
-    );
+
+    // TODO: Figure out how to remove this It's only here as a last resort if we
+    // forget to explicitly flush.
+    if (enableSyncMicroTasks && supportsMicrotasks) {
+      // Flush the queue in a microtask.
+      scheduleMicrotask(flushSyncCallbackQueueImpl);
+    } else {
+      // Flush the queue in the next tick.
+      immediateQueueCallbackNode = Scheduler_scheduleCallback(
+        Scheduler_ImmediatePriority,
+        flushSyncCallbackQueueImpl,
+      );
+    }
   } else {
     // Push onto existing queue. Don't need to schedule a callback because
     // we already scheduled one when we created the queue.
     syncQueue.push(callback);
   }
-  return fakeCallbackNode;
 }
 
 export function cancelCallback(callbackNode: mixed) {
-  if (callbackNode !== fakeCallbackNode) {
-    Scheduler_cancelCallback(callbackNode);
-  }
+  Scheduler_cancelCallback(callbackNode);
 }
 
 export function flushSyncCallbackQueue() {

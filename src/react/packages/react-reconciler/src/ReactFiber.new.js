@@ -8,12 +8,7 @@
  */
 
 import type {ReactElement} from 'shared/ReactElementType';
-import type {
-  ReactFragment,
-  ReactPortal,
-  ReactFundamentalComponent,
-  ReactScope,
-} from 'shared/ReactTypes';
+import type {ReactFragment, ReactPortal, ReactScope} from 'shared/ReactTypes';
 import type {Fiber} from './ReactInternalTypes';
 import type {RootTag} from './ReactRootTags';
 import type {WorkTag} from './ReactWorkTags';
@@ -24,10 +19,11 @@ import type {OffscreenProps} from './ReactFiberOffscreenComponent';
 
 import invariant from 'shared/invariant';
 import {
-  enableProfilerTimer,
-  enableFundamentalAPI,
-  enableScopeAPI,
+  createRootStrictEffectsByDefault,
   enableCache,
+  enableStrictEffects,
+  enableProfilerTimer,
+  enableScopeAPI,
 } from 'shared/ReactFeatureFlags';
 import {NoFlags, Placement, StaticMask} from './ReactFiberFlags';
 import {ConcurrentRoot, BlockingRoot} from './ReactRootTags';
@@ -51,7 +47,6 @@ import {
   MemoComponent,
   SimpleMemoComponent,
   LazyComponent,
-  FundamentalComponent,
   ScopeComponent,
   OffscreenComponent,
   LegacyHiddenComponent,
@@ -71,7 +66,8 @@ import {
   ConcurrentMode,
   DebugTracingMode,
   ProfileMode,
-  StrictMode,
+  StrictLegacyMode,
+  StrictEffectsMode,
   BlockingMode,
 } from './ReactTypeOfMode';
 import {
@@ -86,7 +82,6 @@ import {
   REACT_SUSPENSE_LIST_TYPE,
   REACT_MEMO_TYPE,
   REACT_LAZY_TYPE,
-  REACT_FUNDAMENTAL_TYPE,
   REACT_SCOPE_TYPE,
   REACT_OFFSCREEN_TYPE,
   REACT_LEGACY_HIDDEN_TYPE,
@@ -426,12 +421,47 @@ export function resetWorkInProgress(workInProgress: Fiber, renderLanes: Lanes) {
   return workInProgress;
 }
 
-export function createHostRootFiber(tag: RootTag): Fiber {
+export function createHostRootFiber(
+  tag: RootTag,
+  strictModeLevelOverride: null | number,
+): Fiber {
   let mode;
   if (tag === ConcurrentRoot) {
-    mode = ConcurrentMode | BlockingMode | StrictMode;
+    mode = ConcurrentMode | BlockingMode;
+    if (strictModeLevelOverride !== null) {
+      if (strictModeLevelOverride >= 1) {
+        mode |= StrictLegacyMode;
+      }
+      if (enableStrictEffects) {
+        if (strictModeLevelOverride >= 2) {
+          mode |= StrictEffectsMode;
+        }
+      }
+    } else {
+      if (enableStrictEffects && createRootStrictEffectsByDefault) {
+        mode |= StrictLegacyMode | StrictEffectsMode;
+      } else {
+        mode |= StrictLegacyMode;
+      }
+    }
   } else if (tag === BlockingRoot) {
-    mode = BlockingMode | StrictMode;
+    mode = BlockingMode;
+    if (strictModeLevelOverride !== null) {
+      if (strictModeLevelOverride >= 1) {
+        mode |= StrictLegacyMode;
+      }
+      if (enableStrictEffects) {
+        if (strictModeLevelOverride >= 2) {
+          mode |= StrictEffectsMode;
+        }
+      }
+    } else {
+      if (enableStrictEffects && createRootStrictEffectsByDefault) {
+        mode |= StrictLegacyMode | StrictEffectsMode;
+      } else {
+        mode |= StrictLegacyMode;
+      }
+    }
   } else {
     mode = NoMode;
   }
@@ -480,7 +510,21 @@ export function createFiberFromTypeAndProps(
         break;
       case REACT_STRICT_MODE_TYPE:
         fiberTag = Mode;
-        mode |= StrictMode;
+
+        // Legacy strict mode (<StrictMode> without any level prop) defaults to level 1.
+        const level =
+          pendingProps.unstable_level == null ? 1 : pendingProps.unstable_level;
+
+        // Levels cascade; higher levels inherit all lower level modes.
+        // It is explicitly not supported to lower a mode with nesting, only to increase it.
+        if (level >= 1) {
+          mode |= StrictLegacyMode;
+        }
+        if (enableStrictEffects) {
+          if (level >= 2) {
+            mode |= StrictEffectsMode;
+          }
+        }
         break;
       case REACT_PROFILER_TYPE:
         return createFiberFromProfiler(pendingProps, mode, lanes, key);
@@ -525,17 +569,6 @@ export function createFiberFromTypeAndProps(
               fiberTag = LazyComponent;
               resolvedType = null;
               break getTag;
-            case REACT_FUNDAMENTAL_TYPE:
-              if (enableFundamentalAPI) {
-                return createFiberFromFundamental(
-                  type,
-                  pendingProps,
-                  mode,
-                  lanes,
-                  key,
-                );
-              }
-              break;
           }
         }
         let info = '';
@@ -614,20 +647,6 @@ export function createFiberFromFragment(
   key: null | string,
 ): Fiber {
   const fiber = createFiber(Fragment, elements, key, mode);
-  fiber.lanes = lanes;
-  return fiber;
-}
-
-export function createFiberFromFundamental(
-  fundamentalComponent: ReactFundamentalComponent<any, any>,
-  pendingProps: any,
-  mode: TypeOfMode,
-  lanes: Lanes,
-  key: null | string,
-): Fiber {
-  const fiber = createFiber(FundamentalComponent, pendingProps, key, mode);
-  fiber.elementType = fundamentalComponent;
-  fiber.type = fundamentalComponent;
   fiber.lanes = lanes;
   return fiber;
 }

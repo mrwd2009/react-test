@@ -1351,11 +1351,10 @@ describe('ReactHooksWithNoopRenderer', () => {
         expect(Scheduler).toFlushAndYieldThrough(['Child one render']);
 
         // Schedule unmount for the parent that unmounts children with pending update.
-        Scheduler.unstable_runWithPriority(
-          Scheduler.unstable_UserBlockingPriority,
-          () => setParentState(false),
-        );
-        expect(Scheduler).toFlushAndYieldThrough([
+        ReactNoop.flushSync(() => {
+          setParentState(false);
+        });
+        expect(Scheduler).toHaveYielded([
           'Parent false render',
           'Parent false commit',
         ]);
@@ -1793,7 +1792,7 @@ describe('ReactHooksWithNoopRenderer', () => {
     it(
       'in legacy mode, useEffect is deferred and updates finish synchronously ' +
         '(in a single batch)',
-      () => {
+      async () => {
         function Counter(props) {
           const [count, updateCount] = useState('(empty)');
           useEffect(() => {
@@ -1808,10 +1807,12 @@ describe('ReactHooksWithNoopRenderer', () => {
           }, [props.count]);
           return <Text text={'Count: ' + count} />;
         }
-        act(() => {
+        await act(async () => {
           ReactNoop.renderLegacySyncRoot(<Counter count={0} />);
+
           // Even in legacy mode, effects are deferred until after paint
-          expect(Scheduler).toFlushAndYieldThrough(['Count: (empty)']);
+          ReactNoop.flushSync();
+          expect(Scheduler).toHaveYielded(['Count: (empty)']);
           expect(ReactNoop.getChildren()).toEqual([span('Count: (empty)')]);
         });
 

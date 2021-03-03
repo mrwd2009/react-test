@@ -31,6 +31,3 @@ export {
   unstable_createEventHandle,
   unstable_isNewReconciler,
 } from './src/client/ReactDOM';
-
-import * as ReactDOM from './src/client/ReactDOM'
-export default ReactDOM

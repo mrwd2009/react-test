@@ -624,3 +624,5 @@ export const unstable_Profiling = enableProfiling
       stopLoggingProfilingEvents,
     }
   : null;
+
+export const unstable_flushAllWithoutAsserting = undefined;

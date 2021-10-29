@@ -24,7 +24,9 @@ import {
   getCurrentUpdateLanePriority,
   setCurrentUpdateLanePriority,
 } from './ReactFiberLane.old';
-import {scheduleMicrotask, supportsMicrotasks} from './ReactFiberHostConfig';
+const supportsMicrotasks = false;
+const scheduleMicrotask = null;
+// import {scheduleMicrotask, supportsMicrotasks} from './ReactFiberHostConfig';
 
 const {
   unstable_runWithPriority: Scheduler_runWithPriority,

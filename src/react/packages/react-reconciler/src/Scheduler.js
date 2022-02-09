@@ -29,6 +29,25 @@ export type SchedulerCallback = (isSync: boolean) => SchedulerCallback | null;
 
 // this doesn't actually exist on the scheduler, but it *does*
 // on scheduler/unstable_mock, which we'll need for internal testing
-export const unstable_yieldValue = Scheduler.unstable_yieldValue;
-export const unstable_setDisableYieldValue =
-  Scheduler.unstable_setDisableYieldValue;
+var yieldedValues = null;
+function _unstable_yieldValue(value: mixed): void {
+  // eslint-disable-next-line react-internal/no-production-logging
+  if (console.log.name === 'disabledLog' || disableYieldValue) {
+    // If console.log has been patched, we assume we're in render
+    // replaying and we ignore any values yielding in the second pass.
+    return;
+  }
+  if (yieldedValues === null) {
+    yieldedValues = [value];
+  } else {
+    yieldedValues.push(value);
+  }
+}
+export const unstable_yieldValue = _unstable_yieldValue;
+
+var disableYieldValue = false;
+
+function setDisableYieldValue(newValue) {
+  disableYieldValue = newValue;
+}
+export const unstable_setDisableYieldValue = setDisableYieldValue;

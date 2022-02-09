@@ -79,3 +79,6 @@ export {
   useTransition,
   version,
 } from './src/React';
+
+import * as React from './src/React'
+export default React

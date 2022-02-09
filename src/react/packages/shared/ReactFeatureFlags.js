@@ -110,7 +110,7 @@ export const enableClientRenderFallbackOnHydrationMismatch = true;
 
 export const enableComponentStackLocations = true;
 
-export const enableNewReconciler = false;
+export const enableNewReconciler = true;
 
 export const disableNativeComponentFrames = false;
 

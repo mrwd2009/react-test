@@ -1,0 +1,172 @@
+<mxfile host="app.diagrams.net" modified="2022-02-09T08:56:58.702Z" agent="5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15" etag="I_vYmMA3GrvycsTpWCxw" version="16.5.4" type="github">
+  <diagram id="GfSZufIO2AmBlwZ52Pym" name="Page-1">
+    <mxGraphModel dx="1042" dy="632" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-1" value="const root = ReactDOM.createRoot(&#39;#div&#39;);&lt;br&gt;root.render(&amp;lt;App /&amp;gt;)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="10" y="290" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-2" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-1" target="aPvHuGmZJIQzvLXJGcmd-3">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="180" y="250" as="sourcePoint" />
+            <mxPoint x="350" y="305" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-3" target="aPvHuGmZJIQzvLXJGcmd-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-3" target="aPvHuGmZJIQzvLXJGcmd-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-3" value="const root = ReactDOM.createRoot(&#39;#div&#39;);&lt;br&gt;" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="320" y="290" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-4" target="aPvHuGmZJIQzvLXJGcmd-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-4" target="aPvHuGmZJIQzvLXJGcmd-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-4" value="const root = ReactFiberReconciler.createContainer(&lt;br&gt;&amp;nbsp; &#39;#div&#39;,&lt;br&gt;&amp;nbsp; ConcurrentRoot,&lt;br&gt;&lt;span style=&quot;white-space: pre&quot;&gt;&amp;nbsp; false,&lt;br&gt;&lt;/span&gt;&amp;nbsp; null,&lt;br&gt;&amp;nbsp; false,&lt;br&gt;&amp;nbsp; false,&lt;br&gt;&amp;nbsp; &#39;&#39;,&lt;br&gt;&amp;nbsp; null&lt;br&gt;);" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="630" y="60" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-6" target="aPvHuGmZJIQzvLXJGcmd-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-6" value="listenToAllSupportedEvents(#div)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="630" y="285" width="280" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-7" value="return new ReactDOMRoot(FiberRoot)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="630" y="350" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-10" target="aPvHuGmZJIQzvLXJGcmd-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-10" value="const root = ReactFiberRoot.createFiberRoot(&lt;br&gt;&amp;nbsp; &#39;#div&#39;,&lt;br&gt;&amp;nbsp; ConcurrentRoot,&lt;br&gt;&lt;span style=&quot;white-space: pre&quot;&gt;&amp;nbsp; false,&lt;br&gt;&lt;/span&gt;&amp;nbsp; null,&lt;br&gt;&amp;nbsp; false,&lt;br&gt;&amp;nbsp; false,&lt;br&gt;&amp;nbsp; &#39;&#39;,&lt;br&gt;&amp;nbsp; null&lt;br&gt;);&lt;br&gt;" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="940" y="60" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-12" target="aPvHuGmZJIQzvLXJGcmd-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-12" value="const root = new FiberRootNode(&lt;br&gt;&amp;nbsp; &#39;#div&#39;,&lt;br&gt;&amp;nbsp; ConcurrentRoot,&lt;br&gt;&amp;nbsp; false,&lt;br&gt;&amp;nbsp; &#39;&#39;,&lt;br&gt;&amp;nbsp; null&lt;br&gt;);" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="60" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-13" target="aPvHuGmZJIQzvLXJGcmd-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-13" value="const uninitializedFiber = createHostRootFiber(&lt;br&gt;&amp;nbsp; ConcurrentRoot,&lt;br&gt;&amp;nbsp; false,&lt;br&gt;&amp;nbsp; false&lt;br&gt;);&lt;br&gt;&lt;br&gt;root.current = uninitializedFiber;&lt;br&gt;uninitializedFiber.stateNode = root;&lt;br&gt;&lt;br&gt;initializeUpdateQueue(uninitializedFiber)&lt;br&gt;" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="185" width="280" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-14" value="createFiber(HostRoot, null, null, ConcurrentMode | ProfileMode)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1590" y="250" width="340" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-18" target="aPvHuGmZJIQzvLXJGcmd-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-18" value="root.render(&amp;lt;App /&amp;gt;)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="320" y="410" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-20" target="aPvHuGmZJIQzvLXJGcmd-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-20" value="ReactFiberReconciler.updateContainer(&lt;br&gt;&amp;nbsp; &amp;lt;App /&amp;gt;,&lt;br&gt;&amp;nbsp; FiberRootNode,&lt;br&gt;&amp;nbsp; null,&lt;br&gt;&amp;nbsp; null&lt;br&gt;)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="630" y="410" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-22" target="aPvHuGmZJIQzvLXJGcmd-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-22" value="const current = container.current;&lt;br&gt;const eventTime = requestEventTime();&lt;br&gt;const lane = requestUpdateLane(current);&lt;br&gt;...&lt;br&gt;enqueueUpdate(current, update, lane);&lt;br&gt;" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="940" y="410" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-24" target="aPvHuGmZJIQzvLXJGcmd-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-24" value="const root = ReactFiberWorkLoop.scheduleUpdateOnFiber(&lt;br&gt;&amp;nbsp; current,&lt;br&gt;&amp;nbsp; lane, &lt;br&gt;&amp;nbsp; eventTime&lt;br&gt;);" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="940" y="550" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-26" target="aPvHuGmZJIQzvLXJGcmd-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-26" value="markUpdateLaneFromFiberToRoot(fiber, lane)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="550" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-27" target="aPvHuGmZJIQzvLXJGcmd-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-27" value="markRootUpdated(root, lane, eventTime)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="610" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-32" target="aPvHuGmZJIQzvLXJGcmd-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-32" value="ensureRootIsScheduled(&lt;br&gt;&amp;nbsp; FiberRootNode, &lt;br&gt;&amp;nbsp; eventTime&lt;br&gt;)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="670" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-34" target="aPvHuGmZJIQzvLXJGcmd-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-34" value="markStarvedLanesAsExpired(root, currentTime)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1654" y="685" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-36" target="aPvHuGmZJIQzvLXJGcmd-38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-36" value="getNextLanes(root, wipLanes)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1654" y="740" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-38" target="aPvHuGmZJIQzvLXJGcmd-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-38" value="scheduleCallback(&lt;br&gt;&amp;nbsp; NormalSchedulerPriority, &lt;br&gt;&amp;nbsp; performConcurrentWorkOnRoot.bind(null, root)&lt;br&gt;)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1654" y="800" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-40" target="aPvHuGmZJIQzvLXJGcmd-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-40" value="Scheduler.unstable_scheduleCallback(&lt;br&gt;&amp;nbsp; NormalSchedulerPriority, &lt;br&gt;&amp;nbsp; performConcurrentWorkOnRoot.bind(null, root)&lt;br&gt;)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1980" y="800" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-42" target="aPvHuGmZJIQzvLXJGcmd-45">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-42" value="var newTask = {&lt;br&gt;&lt;span&gt;&amp;nbsp; id: 1,&lt;br&gt;&lt;/span&gt;&amp;nbsp; callback: performConcurrentWorkOnRoot.bind(null, root)&lt;br&gt;&amp;nbsp; priorityLevel: NormalSchedulerPriority,&lt;br&gt;&amp;nbsp; startTime,&lt;br&gt;&amp;nbsp; expirationTime,&lt;br&gt;&amp;nbsp; sortIndex: -1,&lt;br&gt;}&lt;br&gt;...&lt;br&gt;push(taskQueue, newTask)&lt;br&gt;" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="2290" y="770" width="320" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-45" target="aPvHuGmZJIQzvLXJGcmd-47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-45" value="requestHostCallback(flushWork)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="2290" y="970" width="320" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-47" target="aPvHuGmZJIQzvLXJGcmd-51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-47" value="schedulePerformWorkUntilDeadline()" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="2640" y="970" width="210" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-55" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-50" target="aPvHuGmZJIQzvLXJGcmd-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-50" value="performWorkUntilDeadline()" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="700" y="1060" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-51" target="aPvHuGmZJIQzvLXJGcmd-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-51" value="JS Macro Task" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="430" y="1060" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-57" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="aPvHuGmZJIQzvLXJGcmd-54" target="aPvHuGmZJIQzvLXJGcmd-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-54" value="flushWork()" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="920" y="1060" width="70" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="aPvHuGmZJIQzvLXJGcmd-56" value="workLoop(true, currentTime)" style="rounded=0;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1035" y="1060" width="155" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

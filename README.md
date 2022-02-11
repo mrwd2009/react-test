@@ -29,3 +29,10 @@ https://juejin.cn/post/6925378374466551821?utm_source=gold_browser_extension
 
 ### Setup react debug env
 https://segmentfault.com/a/1190000020239791
+
+
+## Event Log
+
+### 2022-02-09
+
+Update react version@2022-02-09.

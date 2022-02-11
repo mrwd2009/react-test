@@ -2,6 +2,10 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) to test react source code.
 
+**react-initializing-workflow.png** shows function stacks at react initial stage for react version less then 17.
+
+**new_reconciler.drawio** shows function stacks at react initial stage for react version larger than 17.
+
 ## Available Scripts
 
 In the project directory, you can run:
